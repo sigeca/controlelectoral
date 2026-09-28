@@ -1,3 +1,6 @@
+# Environment configuration (específico de cada servidor/nube)
+.env
+
 # Writable cache, logs and sessions
 /writable/cache/*
 !/writable/cache/index.html
