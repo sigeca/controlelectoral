@@ -42,12 +42,18 @@ class MezadignidadController extends BaseController
         $mezas      = $this->mezaModel->getMezasDetailed();
         $dignidades = $this->dignidadModel->getDignidadesDetailed();
 
+        $selectedMeza = $this->request->getGet('idmeza');
+        $oldData = session()->getFlashdata('old') ?? [];
+        if (!empty($selectedMeza) && empty($oldData['idmeza'])) {
+            $oldData['idmeza'] = $selectedMeza;
+        }
+
         $data = [
             'title'      => 'Asignar Dignidad a Elegir en Mesa',
             'mezas'      => $mezas,
             'dignidades' => $dignidades,
             'errors'     => session()->getFlashdata('errors') ?? [],
-            'old'        => session()->getFlashdata('old') ?? [],
+            'old'        => $oldData,
         ];
 
         return view('mezadignidad/create', $data);
@@ -58,6 +64,11 @@ class MezadignidadController extends BaseController
      */
     public function store()
     {
+        // En caso de acceso directo por GET o redirección por SSL/servidor
+        if ($this->request->is('get')) {
+            return redirect()->to(site_url('mezadignidad/create'));
+        }
+
         $postData = [
             'idmeza'         => $this->request->getPost('idmeza'),
             'iddignidad'     => $this->request->getPost('iddignidad'),
@@ -104,6 +115,11 @@ class MezadignidadController extends BaseController
      */
     public function update($id = null)
     {
+        // En caso de acceso directo por GET o redirección por SSL/servidor
+        if ($this->request->is('get')) {
+            return redirect()->to(site_url('mezadignidad/edit/' . $id));
+        }
+
         $asignacion = $this->mezadignidadModel->find($id);
 
         if (! $asignacion) {

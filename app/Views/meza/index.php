@@ -293,7 +293,7 @@
                             <i class="bi bi-card-checklist fs-1 text-secondary opacity-50 mb-2 d-block"></i>
                             <p class="mb-2 fw-semibold">No hay dignidades a elegir asignadas a esta mesa.</p>
                             <p class="small text-muted mb-3">Puede vincular candidatos y el conteo de papeletas a través del módulo de dignidades por mesa.</p>
-                            <a href="<?= site_url('mezadignidad/create') ?>" class="btn btn-sm btn-outline-primary">
+                            <a href="<?= site_url('mezadignidad/create' . (!empty($currentMeza['idmeza']) ? '?idmeza=' . $currentMeza['idmeza'] : '')) ?>" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-plus-circle me-1"></i> Asignar Dignidad
                             </a>
                         </div>
@@ -365,7 +365,7 @@
                     <a href="<?= site_url('mezadignidad') ?>" class="btn btn-sm btn-link text-decoration-none px-0">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Dignidades por Mesa
                     </a>
-                    <a href="<?= site_url('mezadignidad/create') ?>" class="btn btn-sm btn-outline-primary">
+                    <a href="<?= site_url('mezadignidad/create' . (!empty($currentMeza['idmeza']) ? '?idmeza=' . $currentMeza['idmeza'] : '')) ?>" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-plus-circle me-1"></i> Asignar Dignidad
                     </a>
                 </div>

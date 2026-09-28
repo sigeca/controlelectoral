@@ -35,19 +35,30 @@ class App extends BaseConfig
 
             // Si el host configurado es localhost/127.0.0.1 y el usuario accede desde otro dominio/IP en la nube,
             // o si baseURL está vacío, adaptamos la URL al host y protocolo real
-            if ($configuredHost === 'localhost' || $configuredHost === '127.0.0.1' || empty($configuredHost)) {
-                $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-                    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-                    || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
-                    || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
-                $scheme = $isHttps ? 'https://' : 'http://';
+            $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+                || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
+                || (isset($_SERVER['HTTP_CF_VISITOR']) && str_contains($_SERVER['HTTP_CF_VISITOR'], 'https'))
+                || (isset($_SERVER['REQUEST_SCHEME']) && strtolower($_SERVER['REQUEST_SCHEME']) === 'https')
+                || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+            $scheme = $isHttps ? 'https://' : 'http://';
 
+            // Obtener el host configurado en baseURL (por ejemplo 'localhost')
+            $configuredHost = parse_url($this->baseURL, PHP_URL_HOST);
+
+            // Si el host configurado es localhost/127.0.0.1 y el usuario accede desde otro dominio/IP en la nube,
+            // o si baseURL está vacío, adaptamos la URL al host y protocolo real
+            if ($configuredHost === 'localhost' || $configuredHost === '127.0.0.1' || empty($configuredHost)) {
                 // Detectar el subdirectorio base donde está alojado el proyecto
                 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
                 $scriptDir  = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
                 $subDir     = ($scriptDir === '' || $scriptDir === '.') ? '' : $scriptDir;
 
                 $this->baseURL = rtrim($scheme . $currentHost . $subDir, '/') . '/';
+            } elseif ($isHttps && str_starts_with($this->baseURL, 'http://')) {
+                // Si la conexión actual es segura (HTTPS) pero en .env se configuró http://,
+                // forzar https:// para evitar que el servidor haga redirección 301 que transforma POST en GET
+                $this->baseURL = 'https://' . substr($this->baseURL, 7);
             }
 
             // Registrar el host actual como permitido para que CodeIgniter no lo descarte

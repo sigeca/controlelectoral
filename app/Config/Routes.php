@@ -124,9 +124,9 @@ $routes->group('dignidad', static function ($routes) {
 $routes->group('mezadignidad', static function ($routes) {
     $routes->get('', 'MezadignidadController::index');
     $routes->get('create', 'MezadignidadController::create');
-    $routes->post('store', 'MezadignidadController::store');
+    $routes->match(['get', 'post'], 'store', 'MezadignidadController::store');
     $routes->get('edit/(:num)', 'MezadignidadController::edit/$1');
-    $routes->post('update/(:num)', 'MezadignidadController::update/$1');
+    $routes->match(['get', 'post'], 'update/(:num)', 'MezadignidadController::update/$1');
     $routes->get('delete/(:num)', 'MezadignidadController::delete/$1');
 });
 
