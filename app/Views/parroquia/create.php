@@ -34,9 +34,9 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-buildings"></i></span>
                             <select name="idcanton" 
-                                    id="idcanton" 
-                                    class="form-select <?= isset($errors['idcanton']) ? 'is-invalid' : '' ?>" 
-                                    required>
+                                     id="idcanton" 
+                                     class="form-select <?= isset($errors['idcanton']) ? 'is-invalid' : '' ?>" 
+                                     required>
                                 <option value="">-- Seleccionar Cantón --</option>
                                 <?php foreach ($cantones as $c): ?>
                                     <option value="<?= esc($c['idcanton']) ?>" 
@@ -52,6 +52,54 @@
                             <?php endif; ?>
                         </div>
                         <div class="form-text">Clave foránea hacia la tabla <code>canton</code>.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="idtipoparroquia" class="form-label fw-semibold">Tipo de Parroquia</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            <select name="idtipoparroquia" 
+                                     id="idtipoparroquia" 
+                                     class="form-select <?= isset($errors['idtipoparroquia']) ? 'is-invalid' : '' ?>">
+                                <option value="">-- Seleccionar Tipo (Opcional) --</option>
+                                <?php foreach ($tiposParroquia as $tp): ?>
+                                    <option value="<?= esc($tp['idtipoparroquia']) ?>" 
+                                        <?= (string)($old['idtipoparroquia'] ?? old('idtipoparroquia')) === (string)$tp['idtipoparroquia'] ? 'selected' : '' ?>>
+                                        <?= esc($tp['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (isset($errors['idtipoparroquia'])): ?>
+                                <div class="invalid-feedback">
+                                    <?= esc($errors['idtipoparroquia']) ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-text">Clave foránea opcional hacia <code>tipoparroquia</code>.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="iddistrito" class="form-label fw-semibold">Distrito Electoral</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-map"></i></span>
+                            <select name="iddistrito" 
+                                     id="iddistrito" 
+                                     class="form-select <?= isset($errors['iddistrito']) ? 'is-invalid' : '' ?>">
+                                <option value="">-- Seleccionar Distrito (Opcional) --</option>
+                                <?php foreach ($distritos as $d): ?>
+                                    <option value="<?= esc($d['iddistrito']) ?>" 
+                                        <?= (string)($old['iddistrito'] ?? old('iddistrito')) === (string)$d['iddistrito'] ? 'selected' : '' ?>>
+                                        <?= esc($d['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (isset($errors['iddistrito'])): ?>
+                                <div class="invalid-feedback">
+                                    <?= esc($errors['iddistrito']) ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-text">Clave foránea opcional hacia <code>distrito</code>.</div>
                     </div>
 
                     <div class="mb-3">

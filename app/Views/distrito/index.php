@@ -6,17 +6,17 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <div>
         <h2 class="h3 mb-0 text-gray-800">
-            <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Provincia (Navegador Individual)
+            <i class="bi bi-map me-2 text-primary"></i>Distrito Electoral (Navegador Individual)
         </h2>
-        <p class="text-muted small mb-0">Visualización registro por registro con barra de navegación, operaciones CRUD y cantones pertenecientes.</p>
+        <p class="text-muted small mb-0">Visualización registro por registro con barra de navegación, operaciones CRUD y parroquias pertenecientes.</p>
     </div>
     <?php if ($total > 0): ?>
         <div class="d-flex align-items-center gap-2">
-            <label for="jumpProvinciaSelect" class="form-label small mb-0 text-muted d-none d-sm-inline">Ir a:</label>
-            <select id="jumpProvinciaSelect" class="form-select form-select-sm" style="min-width: 190px;" onchange="if(this.value) window.location.href=this.value;">
+            <label for="jumpDistritoSelect" class="form-label small mb-0 text-muted d-none d-sm-inline">Ir a:</label>
+            <select id="jumpDistritoSelect" class="form-select form-select-sm" style="min-width: 190px;" onchange="if(this.value) window.location.href=this.value;">
                 <?php foreach ($allIds as $idx => $id): ?>
-                    <option value="<?= site_url('provincia/ver/' . $id) ?>" <?= ($idx === $currentIndex) ? 'selected' : '' ?>>
-                        Registro <?= ($idx + 1) ?> de <?= $total ?> (Provincia ID #<?= $id ?>)
+                    <option value="<?= site_url('distrito/ver/' . $id) ?>" <?= ($idx === $currentIndex) ? 'selected' : '' ?>>
+                        Registro <?= ($idx + 1) ?> de <?= $total ?> (Distrito ID #<?= $id ?>)
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -35,7 +35,7 @@
             <!-- Grupo de Navegación: Primero, Anterior, Indicador, Siguiente, Último -->
             <div class="btn-group shadow-sm" role="group" aria-label="Navegación de registros">
                 <!-- Primero -->
-                <a href="<?= ($firstId && $currentIndex > 0) ? site_url('provincia/ver/' . $firstId) : '#' ?>" 
+                <a href="<?= ($firstId && $currentIndex > 0) ? site_url('distrito/ver/' . $firstId) : '#' ?>" 
                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center <?= ($currentIndex === 0 || $total === 0) ? 'disabled' : '' ?>"
                    title="Primer Registro (Inicio)">
                     <i class="bi bi-chevron-double-left me-1"></i>
@@ -43,7 +43,7 @@
                 </a>
 
                 <!-- Anterior -->
-                <a href="<?= ($prevId !== null) ? site_url('provincia/ver/' . $prevId) : '#' ?>" 
+                <a href="<?= ($prevId !== null) ? site_url('distrito/ver/' . $prevId) : '#' ?>" 
                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center <?= ($prevId === null) ? 'disabled' : '' ?>"
                    title="Registro Anterior (Flecha Izquierda)" id="btnAnterior">
                     <i class="bi bi-chevron-left me-1"></i>
@@ -57,7 +57,7 @@
                 </span>
 
                 <!-- Siguiente -->
-                <a href="<?= ($nextId !== null) ? site_url('provincia/ver/' . $nextId) : '#' ?>" 
+                <a href="<?= ($nextId !== null) ? site_url('distrito/ver/' . $nextId) : '#' ?>" 
                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center <?= ($nextId === null) ? 'disabled' : '' ?>"
                    title="Registro Siguiente (Flecha Derecha)" id="btnSiguiente">
                     <span>Siguiente</span>
@@ -65,7 +65,7 @@
                 </a>
 
                 <!-- Último -->
-                <a href="<?= ($lastId && $currentIndex < $total - 1) ? site_url('provincia/ver/' . $lastId) : '#' ?>" 
+                <a href="<?= ($lastId && $currentIndex < $total - 1) ? site_url('distrito/ver/' . $lastId) : '#' ?>" 
                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center <?= ($currentIndex >= $total - 1 || $total === 0) ? 'disabled' : '' ?>"
                    title="Último Registro (Fin)">
                     <span class="d-none d-sm-inline">Último</span>
@@ -76,14 +76,14 @@
             <!-- Grupo de Acciones: Nuevo, Editar, Borrar, Listar -->
             <div class="btn-group shadow-sm" role="group" aria-label="Acciones de registro">
                 <!-- Nuevo -->
-                <a href="<?= site_url('provincia/create') ?>" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" title="Registrar Nueva Provincia">
+                <a href="<?= site_url('distrito/create') ?>" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" title="Registrar Nuevo Distrito">
                     <i class="bi bi-plus-circle me-1"></i>
                     <span>Nuevo</span>
                 </a>
 
                 <!-- Editar -->
-                <?php if ($currentProvincia): ?>
-                    <a href="<?= site_url('provincia/edit/' . $currentProvincia['idprovincia']) ?>" class="btn btn-warning btn-sm text-dark d-inline-flex align-items-center justify-content-center" title="Editar este Registro">
+                <?php if ($currentDistrito): ?>
+                    <a href="<?= site_url('distrito/edit/' . $currentDistrito['iddistrito']) ?>" class="btn btn-warning btn-sm text-dark d-inline-flex align-items-center justify-content-center" title="Editar este Registro">
                         <i class="bi bi-pencil-square me-1"></i>
                         <span>Editar</span>
                     </a>
@@ -94,11 +94,11 @@
                 <?php endif; ?>
 
                 <!-- Borrar -->
-                <?php if ($currentProvincia): ?>
-                    <a href="<?= site_url('provincia/delete/' . $currentProvincia['idprovincia']) ?>" 
+                <?php if ($currentDistrito): ?>
+                    <a href="<?= site_url('distrito/delete/' . $currentDistrito['iddistrito']) ?>" 
                        class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" 
                        title="Eliminar este Registro"
-                       onclick="return confirm('¿Está seguro de eliminar la Provincia \'<?= esc($currentProvincia['nombre']) ?>\' (ID: <?= esc($currentProvincia['idprovincia']) ?>)?');">
+                       onclick="return confirm('¿Está seguro de eliminar el Distrito \'<?= esc($currentDistrito['nombre']) ?>\' (ID: <?= esc($currentDistrito['iddistrito']) ?>)?');">
                         <i class="bi bi-trash3 me-1"></i>
                         <span>Borrar</span>
                     </a>
@@ -109,7 +109,7 @@
                 <?php endif; ?>
 
                 <!-- Listar -->
-                <a href="<?= site_url('provincia/listar') ?>" class="btn btn-info btn-sm text-white d-inline-flex align-items-center justify-content-center" title="Ver Listado Completo en Tabla">
+                <a href="<?= site_url('distrito/listar') ?>" class="btn btn-info btn-sm text-white d-inline-flex align-items-center justify-content-center" title="Ver Listado Completo en Tabla">
                     <i class="bi bi-table me-1"></i>
                     <span>Listar</span>
                 </a>
@@ -122,23 +122,23 @@
 <!-- ========================================================== -->
 <!-- DETALLE DEL REGISTRO ACTUAL (PRESENTACIÓN INDIVIDUAL)       -->
 <!-- ========================================================== -->
-<?php if ($currentProvincia): ?>
+<?php if ($currentDistrito): ?>
 
     <div class="row mb-4">
-        <!-- Tarjeta Principal con Información de la Provincia -->
+        <!-- Tarjeta Principal con Información del Distrito -->
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary text-white px-2 py-1 fs-6">
-                            <i class="bi bi-map-fill me-1"></i> Provincia ID #<?= esc($currentProvincia['idprovincia']) ?>
+                            <i class="bi bi-map-fill me-1"></i> Distrito ID #<?= esc($currentDistrito['iddistrito']) ?>
                         </span>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fs-6">
-                            <i class="bi bi-buildings me-1"></i><?= count($cantonesAsociados) ?> Cantón(es) Pertenecientes
+                        <span class="badge bg-purple-subtle text-purple border px-3 py-1 fs-6" style="background-color: #f3e8ff; color: #6b21a8; border-color: #e9d5ff;">
+                            <i class="bi bi-geo-fill me-1"></i><?= count($parroquiasAsociadas) ?> Parroquia(s) Pertenecientes
                         </span>
                     </div>
                     <div>
-                        <a href="<?= site_url('provincia/edit/' . $currentProvincia['idprovincia']) ?>" class="btn btn-sm btn-outline-warning text-dark me-1">
+                        <a href="<?= site_url('distrito/edit/' . $currentDistrito['iddistrito']) ?>" class="btn btn-sm btn-outline-warning text-dark me-1">
                             <i class="bi bi-pencil-square me-1"></i> Modificar
                         </a>
                     </div>
@@ -148,10 +148,10 @@
                     <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border mb-3">
                         <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm flex-shrink-0" 
                              style="width: 64px; height: 64px; font-size: 1.75rem; background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
-                            <i class="bi bi-geo-alt-fill"></i>
+                            <i class="bi bi-map"></i>
                         </div>
                         <div>
-                            <h4 class="mb-1 text-dark fw-bold"><?= esc($currentProvincia['nombre']) ?></h4>
+                            <h4 class="mb-1 text-dark fw-bold"><?= esc($currentDistrito['nombre']) ?></h4>
                             <p class="text-muted small mb-0">
                                 <i class="bi bi-info-circle me-1"></i>
                                 Registro <?= ($currentIndex + 1) ?> de <?= $total ?> en la base de datos local.
@@ -164,29 +164,29 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- CANTONES PERTENECIENTES A ESTA PROVINCIA                    -->
+    <!-- PARROQUIAS PERTENECIENTES A ESTE DISTRITO                   -->
     <!-- ========================================================== -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                <i class="bi bi-buildings text-primary"></i>
-                <span>Cantones Pertenecientes a esta Provincia (<?= count($cantonesAsociados) ?>)</span>
+                <i class="bi bi-geo-fill text-primary"></i>
+                <span>Parroquias Pertenecientes a este Distrito (<?= count($parroquiasAsociadas) ?>)</span>
             </div>
-            <a href="<?= site_url('canton/create') ?>" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-plus-circle me-1"></i> Asignar / Crear Cantón
+            <a href="<?= site_url('parroquia/create') ?>" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus-circle me-1"></i> Asignar / Crear Parroquia
             </a>
         </div>
 
         <div class="card-body p-0">
-            <?php if (empty($cantonesAsociados)): ?>
+            <?php if (empty($parroquiasAsociadas)): ?>
                 <div class="text-center py-5 px-3 text-muted">
-                    <i class="bi bi-buildings fs-1 text-secondary opacity-50 mb-2 d-block"></i>
-                    <h6 class="fw-bold text-dark mb-1">No hay cantones asignados a esta provincia</h6>
+                    <i class="bi bi-geo fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                    <h6 class="fw-bold text-dark mb-1">No hay parroquias asignadas a este distrito</h6>
                     <p class="small text-muted mb-3" style="max-width: 450px; margin: 0 auto;">
-                        Actualmente no existen cantones registrados pertenecientes a esta provincia (<code>idprovincia = <?= esc($currentProvincia['idprovincia']) ?></code>).
+                        Actualmente no existen registros en la tabla <code>parroquia</code> vinculados a este distrito (<code>iddistrito = <?= esc($currentDistrito['iddistrito']) ?></code>).
                     </p>
-                    <a href="<?= site_url('canton/create') ?>" class="btn btn-sm btn-primary">
-                        <i class="bi bi-plus-circle me-1"></i> Registrar Nuevo Cantón
+                    <a href="<?= site_url('parroquia/create') ?>" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Registrar Nueva Parroquia
                     </a>
                 </div>
             <?php else: ?>
@@ -195,33 +195,46 @@
                         <thead class="table-light">
                             <tr>
                                 <th class="text-center" style="width: 80px;">ID</th>
-                                <th>Nombre del Cantón</th>
-                                <th class="text-center">Parroquias Pertenecientes</th>
-                                <th class="text-center" style="width: 180px;">Acción</th>
+                                <th>Nombre de la Parroquia</th>
+                                <th>Tipo de Parroquia</th>
+                                <th>Cantón</th>
+                                <th>Provincia</th>
+                                <th class="text-center" style="width: 120px;">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($cantonesAsociados as $c): ?>
+                            <?php foreach ($parroquiasAsociadas as $p): ?>
                                 <tr>
-                                    <td class="text-center fw-semibold text-secondary">#<?= esc($c['idcanton']) ?></td>
+                                    <td class="text-center fw-semibold text-secondary">#<?= esc($p['idparroquia']) ?></td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="bg-primary-subtle text-primary rounded-circle p-2 d-inline-flex justify-content-center align-items-center" style="width: 28px; height: 28px; font-size: 0.75rem;">
-                                                <i class="bi bi-buildings-fill"></i>
+                                            <div class="bg-primary text-white rounded-circle p-2 d-inline-flex justify-content-center align-items-center" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                                <i class="bi bi-geo-alt-fill"></i>
                                             </div>
-                                            <span class="fw-bold text-dark"><?= esc($c['nombre']) ?></span>
+                                            <span class="fw-bold text-dark"><?= esc($p['nombre']) ?></span>
                                         </div>
                                     </td>
-                                    <td class="text-center">
+                                    <td>
+                                        <?php if (!empty($p['tipoparroquia_nombre'])): ?>
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 fs-7">
+                                                <i class="bi bi-tag-fill me-1"></i><?= esc($p['tipoparroquia_nombre']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-light text-muted border px-2 py-1 fs-7">Sin tipo</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <span class="badge bg-light text-dark border px-2 py-1 fs-7">
-                                            <i class="bi bi-geo-fill me-1 text-primary"></i><?= $c['total_parroquias'] ?> parroquias
+                                            <i class="bi bi-buildings me-1 text-primary"></i><?= esc($p['canton_nombre'] ?? 'Sin Cantón') ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fs-7">
+                                            <i class="bi bi-map-fill me-1"></i><?= esc($p['provincia_nombre'] ?? 'Sin Provincia') ?>
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?= site_url('canton/ver/' . $c['idcanton']) ?>" class="btn btn-outline-primary btn-sm me-1" title="Ver cantón">
-                                            <i class="bi bi-eye"></i> Ver
-                                        </a>
-                                        <a href="<?= site_url('canton/edit/' . $c['idcanton']) ?>" class="btn btn-outline-warning btn-sm" title="Editar cantón">
+                                        <a href="<?= site_url('parroquia/edit/' . $p['idparroquia']) ?>" class="btn btn-outline-warning btn-sm" title="Editar parroquia">
                                             <i class="bi bi-pencil-square"></i> Editar
                                         </a>
                                     </td>
@@ -238,11 +251,11 @@
     <!-- Estado Vacío cuando no existen registros -->
     <div class="card shadow-sm border-0 py-5 text-center">
         <div class="card-body">
-            <i class="bi bi-geo-alt fs-1 d-block mb-3 text-secondary"></i>
-            <h4 class="text-dark fw-bold">No existen provincias registradas</h4>
-            <p class="text-muted mb-4">Actualmente la base de datos no contiene provincias.</p>
-            <a href="<?= site_url('provincia/create') ?>" class="btn btn-primary px-4 py-2">
-                <i class="bi bi-plus-circle me-1"></i> Registrar la Primera Provincia
+            <i class="bi bi-map fs-1 d-block mb-3 text-secondary"></i>
+            <h4 class="text-dark fw-bold">No existen distritos registrados</h4>
+            <p class="text-muted mb-4">Actualmente la base de datos no contiene distritos electorales.</p>
+            <a href="<?= site_url('distrito/create') ?>" class="btn btn-primary px-4 py-2">
+                <i class="bi bi-plus-circle me-1"></i> Registrar el Primer Distrito
             </a>
         </div>
     </div>

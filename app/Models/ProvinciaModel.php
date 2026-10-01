@@ -32,11 +32,56 @@ class ProvinciaModel extends Model
     protected $skipValidation = false;
 
     /**
+     * Obtener IDs ordenados de todas las provincias para navegación
+     */
+    public function getProvinciaIdsOrdered(): array
+    {
+        $rows = $this->select('idprovincia')
+                     ->orderBy('nombre', 'ASC')
+                     ->findAll();
+
+        return array_column($rows, 'idprovincia');
+    }
+
+    /**
+     * Obtener provincias con conteo de cantones asociados
+     */
+    public function getProvinciasWithCounts(): array
+    {
+        $provincias = $this->orderBy('nombre', 'ASC')->findAll();
+
+        foreach ($provincias as &$p) {
+            $p['total_cantones'] = $this->countCantonesAsociados($p['idprovincia']);
+        }
+
+        return $provincias;
+    }
+
+    /**
+     * Obtener los cantones pertenecientes a una provincia específica
+     */
+    public function getCantonesDeProvincia(int $idprovincia): array
+    {
+        $cantones = $this->db->table('canton')
+                             ->where('idprovincia', $idprovincia)
+                             ->orderBy('nombre', 'ASC')
+                             ->get()
+                             ->getResultArray();
+
+        foreach ($cantones as &$c) {
+            $c['total_parroquias'] = $this->db->table('parroquia')
+                                              ->where('idcanton', $c['idcanton'])
+                                              ->countAllResults();
+        }
+
+        return $cantones;
+    }
+
+    /**
      * Contar cuántos cantones están asociados a esta provincia
      */
-    public function countCantonesAsociados($idprovincia)
+    public function countCantonesAsociados($idprovincia): int
     {
-        $db = \Config\Database::connect();
-        return $db->table('canton')->where('idprovincia', $idprovincia)->countAllResults();
+        return $this->db->table('canton')->where('idprovincia', $idprovincia)->countAllResults();
     }
 }

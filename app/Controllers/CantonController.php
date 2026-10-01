@@ -17,18 +17,72 @@ class CantonController extends BaseController
     }
 
     /**
-     * Listar todos los cantones con su provincia asociada
+     * Navegador por registro de cantones (un registro a la vez con menú de navegación y parroquias asociadas)
      */
-    public function index()
+    public function index($id = null)
     {
-        $cantones = $this->cantonModel->getCantonesWithProvincia();
+        $cantonIds = $this->cantonModel->getCantonIdsOrdered();
+        $total     = count($cantonIds);
+
+        if ($id === null) {
+            $queryId = $this->request->getGet('id');
+            if ($queryId !== null && is_numeric($queryId)) {
+                $id = (int)$queryId;
+            }
+        }
+
+        $currentIndex       = 0;
+        $currentCanton      = null;
+        $parroquiasAsociadas = [];
+
+        if ($total > 0) {
+            if ($id !== null) {
+                $pos = array_search((int)$id, $cantonIds);
+                $currentIndex = ($pos !== false) ? $pos : 0;
+            } elseif ($this->request->getGet('pos') !== null && is_numeric($this->request->getGet('pos'))) {
+                $posQuery = (int)$this->request->getGet('pos') - 1;
+                $currentIndex = ($posQuery >= 0 && $posQuery < $total) ? $posQuery : 0;
+            }
+
+            $currentId           = $cantonIds[$currentIndex];
+            $currentCanton      = $this->cantonModel->getCantonesWithProvincia($currentId);
+            $parroquiasAsociadas = $this->cantonModel->getParroquiasDeCanton($currentId);
+        }
+
+        $firstId = $total > 0 ? $cantonIds[0] : null;
+        $prevId  = ($total > 0 && $currentIndex > 0) ? $cantonIds[$currentIndex - 1] : null;
+        $nextId  = ($total > 0 && $currentIndex < $total - 1) ? $cantonIds[$currentIndex + 1] : null;
+        $lastId  = $total > 0 ? $cantonIds[$total - 1] : null;
 
         $data = [
-            'title'    => 'Gestión de Cantones - Control Electoral',
-            'cantones' => $cantones,
+            'title'               => $currentCanton ? 'Cantón: ' . $currentCanton['nombre'] . ' - Control Electoral' : 'Cantones - Control Electoral',
+            'currentCanton'       => $currentCanton,
+            'parroquiasAsociadas' => $parroquiasAsociadas,
+            'currentIndex'        => $currentIndex,
+            'total'               => $total,
+            'firstId'             => $firstId,
+            'prevId'              => $prevId,
+            'nextId'              => $nextId,
+            'lastId'              => $lastId,
+            'allIds'              => $cantonIds,
         ];
 
         return view('canton/index', $data);
+    }
+
+    /**
+     * Listado general de todos los cantones en formato tabla
+     */
+    public function listar()
+    {
+        $cantones = $this->cantonModel->getCantonesWithCounts();
+
+        $data = [
+            'title'    => 'Listado General de Cantones - Control Electoral',
+            'cantones' => $cantones,
+        ];
+
+        return view('canton/listar', $data);
     }
 
     /**
@@ -58,14 +112,16 @@ class CantonController extends BaseController
             'idprovincia' => $this->request->getPost('idprovincia'),
         ];
 
-        if (! $this->cantonModel->insert($postData)) {
+        $insertId = $this->cantonModel->insert($postData);
+
+        if (! $insertId) {
             return redirect()->back()
                              ->withInput()
                              ->with('errors', $this->cantonModel->errors())
                              ->with('old', $postData);
         }
 
-        return redirect()->to(site_url('canton'))->with('success', 'Cantón registrado exitosamente.');
+        return redirect()->to(site_url('canton/ver/' . $insertId))->with('success', 'Cantón registrado exitosamente.');
     }
 
     /**
@@ -114,7 +170,7 @@ class CantonController extends BaseController
                              ->with('errors', $this->cantonModel->errors());
         }
 
-        return redirect()->to(site_url('canton'))->with('success', 'Cantón actualizado correctamente.');
+        return redirect()->to(site_url('canton/ver/' . $id))->with('success', 'Cantón actualizado correctamente.');
     }
 
     /**
@@ -131,9 +187,9 @@ class CantonController extends BaseController
         // Proteger clave foránea si tiene parroquias asociadas
         $totalParroquias = $this->cantonModel->countParroquiasAsociadas($id);
         if ($totalParroquias > 0) {
-            return redirect()->to(site_url('canton'))->with(
+            return redirect()->to(site_url('canton/ver/' . $id))->with(
                 'error',
-                "No se puede eliminar el cantón \"{$canton['nombre']}\" porque tiene {$totalParroquias} parroquia(s) asociada(s)."
+                "No se puede eliminar el cantón \"{$canton['nombre']}\" porque tiene {$totalParroquias} parroquia(s) asociada(s). Debe reasignar o eliminar las parroquias primero."
             );
         }
 

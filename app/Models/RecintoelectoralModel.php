@@ -68,6 +68,40 @@ class RecintoelectoralModel extends Model
     }
 
     /**
+     * Obtener lista ordenada de IDs de recintos electorales para la navegación por registros
+     */
+    public function getRecintoIdsOrdered(): array
+    {
+        $rows = $this->select('recintoelectoral.idrecintoelectoral')
+                     ->join('zona', 'zona.idzona = recintoelectoral.idzona', 'left')
+                     ->join('parroquia', 'parroquia.idparroquia = zona.idparroquia', 'left')
+                     ->join('canton', 'canton.idcanton = parroquia.idcanton', 'left')
+                     ->join('provincia', 'provincia.idprovincia = canton.idprovincia', 'left')
+                     ->orderBy('provincia.nombre', 'ASC')
+                     ->orderBy('canton.nombre', 'ASC')
+                     ->orderBy('parroquia.nombre', 'ASC')
+                     ->orderBy('zona.nombre', 'ASC')
+                     ->orderBy('recintoelectoral.nombre', 'ASC')
+                     ->findAll();
+
+        return array_column($rows, 'idrecintoelectoral');
+    }
+
+    /**
+     * Obtener mesas electorales vinculadas a un recinto específico
+     */
+    public function getMezasDeRecinto(int $idrecintoelectoral): array
+    {
+        return $this->db->table('meza')
+                        ->select('meza.*, sexo.nombre AS sexo_nombre')
+                        ->join('sexo', 'sexo.idsexo = meza.idsexo', 'left')
+                        ->where('meza.idrecintoelectoral', $idrecintoelectoral)
+                        ->orderBy('meza.numero', 'ASC')
+                        ->get()
+                        ->getResultArray();
+    }
+
+    /**
      * Contar cuántas mesas están asociadas a un recinto electoral específico
      */
     public function countMezasAsociadas(int $idrecintoelectoral): int
@@ -77,4 +111,3 @@ class RecintoelectoralModel extends Model
                         ->countAllResults();
     }
 }
-

@@ -17,18 +17,72 @@ class RecintoelectoralController extends BaseController
     }
 
     /**
-     * Listar todos los recintos electorales
+     * Navegador por registro de recintos electorales (un registro a la vez con menú de navegación)
      */
-    public function index()
+    public function index($id = null)
+    {
+        $recintoIds = $this->recintoModel->getRecintoIdsOrdered();
+        $total      = count($recintoIds);
+
+        if ($id === null) {
+            $queryId = $this->request->getGet('id');
+            if ($queryId !== null && is_numeric($queryId)) {
+                $id = (int)$queryId;
+            }
+        }
+
+        $currentIndex   = 0;
+        $currentRecinto = null;
+        $mezasAsociadas = [];
+
+        if ($total > 0) {
+            if ($id !== null) {
+                $pos = array_search((int)$id, $recintoIds);
+                $currentIndex = ($pos !== false) ? $pos : 0;
+            } elseif ($this->request->getGet('pos') !== null && is_numeric($this->request->getGet('pos'))) {
+                $posQuery = (int)$this->request->getGet('pos') - 1;
+                $currentIndex = ($posQuery >= 0 && $posQuery < $total) ? $posQuery : 0;
+            }
+
+            $currentId      = $recintoIds[$currentIndex];
+            $currentRecinto = $this->recintoModel->getRecintosDetailed($currentId);
+            $mezasAsociadas = $this->recintoModel->getMezasDeRecinto($currentId);
+        }
+
+        $firstId = $total > 0 ? $recintoIds[0] : null;
+        $prevId  = ($total > 0 && $currentIndex > 0) ? $recintoIds[$currentIndex - 1] : null;
+        $nextId  = ($total > 0 && $currentIndex < $total - 1) ? $recintoIds[$currentIndex + 1] : null;
+        $lastId  = $total > 0 ? $recintoIds[$total - 1] : null;
+
+        $data = [
+            'title'          => $currentRecinto ? 'Recinto Electoral: ' . $currentRecinto['nombre'] . ' - Control Electoral' : 'Recintos Electorales - Control Electoral',
+            'currentRecinto' => $currentRecinto,
+            'mezasAsociadas' => $mezasAsociadas,
+            'currentIndex'   => $currentIndex,
+            'total'          => $total,
+            'firstId'        => $firstId,
+            'prevId'         => $prevId,
+            'nextId'         => $nextId,
+            'lastId'         => $lastId,
+            'allIds'         => $recintoIds,
+        ];
+
+        return view('recintoelectoral/index', $data);
+    }
+
+    /**
+     * Listado general de todos los recintos electorales en formato tabla
+     */
+    public function listar()
     {
         $recintos = $this->recintoModel->getRecintosDetailed();
 
         $data = [
-            'title'    => 'Gestión de Recintos Electorales - Control Electoral',
+            'title'    => 'Listado General de Recintos Electorales - Control Electoral',
             'recintos' => $recintos,
         ];
 
-        return view('recintoelectoral/index', $data);
+        return view('recintoelectoral/listar', $data);
     }
 
     /**
@@ -59,14 +113,16 @@ class RecintoelectoralController extends BaseController
             'numeroelectores' => $this->request->getPost('numeroelectores'),
         ];
 
-        if (! $this->recintoModel->insert($postData)) {
+        $insertId = $this->recintoModel->insert($postData);
+
+        if (! $insertId) {
             return redirect()->back()
                              ->withInput()
                              ->with('errors', $this->recintoModel->errors())
                              ->with('old', $postData);
         }
 
-        return redirect()->to(site_url('recintoelectoral'))->with('success', 'Recinto electoral registrado exitosamente.');
+        return redirect()->to(site_url('recintoelectoral/ver/' . $insertId))->with('success', 'Recinto electoral registrado exitosamente.');
     }
 
     /**
@@ -116,7 +172,7 @@ class RecintoelectoralController extends BaseController
                              ->with('errors', $this->recintoModel->errors());
         }
 
-        return redirect()->to(site_url('recintoelectoral'))->with('success', 'Recinto electoral actualizado correctamente.');
+        return redirect()->to(site_url('recintoelectoral/ver/' . $id))->with('success', 'Recinto electoral actualizado correctamente.');
     }
 
     /**
@@ -132,7 +188,7 @@ class RecintoelectoralController extends BaseController
 
         $mezasCount = $this->recintoModel->countMezasAsociadas((int)$id);
         if ($mezasCount > 0) {
-            return redirect()->to(site_url('recintoelectoral'))
+            return redirect()->to(site_url('recintoelectoral/ver/' . $id))
                              ->with('error', "No se puede eliminar el recinto '{$recinto['nombre']}' porque tiene {$mezasCount} mesa(s) electoral(es) asociada(s). Debe reasignar o eliminar las mesas primero.");
         }
 

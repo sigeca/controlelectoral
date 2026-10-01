@@ -293,9 +293,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="<?= site_url('tipoparroquia') ?>" class="nav-link <?= url_is('tipoparroquia*') ? 'active' : '' ?>">
+                            <i class="bi bi-tag-fill"></i>
+                            <span>Tipos de Parroquia</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="<?= site_url('zona') ?>" class="nav-link <?= url_is('zona*') ? 'active' : '' ?>">
                             <i class="bi bi-pin-map-fill"></i>
                             <span>Zonas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= site_url('distrito') ?>" class="nav-link <?= url_is('distrito*') ? 'active' : '' ?>">
+                            <i class="bi bi-map"></i>
+                            <span>Distritos</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -308,6 +320,12 @@
                         <a href="<?= site_url('meza') ?>" class="nav-link <?= url_is('meza*') ? 'active' : '' ?>">
                             <i class="bi bi-inbox-fill"></i>
                             <span>Mesas Electorales</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= site_url('acta') ?>" class="nav-link <?= url_is('acta*') ? 'active' : '' ?>">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <span>Actas Electorales</span>
                         </a>
                     </li>
                 </ul>

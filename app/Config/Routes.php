@@ -36,6 +36,8 @@ $routes->group('persona', static function ($routes) {
 // Módulo Provincia
 $routes->group('provincia', static function ($routes) {
     $routes->get('', 'ProvinciaController::index');
+    $routes->get('ver/(:num)', 'ProvinciaController::index/$1');
+    $routes->get('listar', 'ProvinciaController::listar');
     $routes->get('create', 'ProvinciaController::create');
     $routes->post('store', 'ProvinciaController::store');
     $routes->get('edit/(:num)', 'ProvinciaController::edit/$1');
@@ -46,6 +48,8 @@ $routes->group('provincia', static function ($routes) {
 // Módulo Cantón
 $routes->group('canton', static function ($routes) {
     $routes->get('', 'CantonController::index');
+    $routes->get('ver/(:num)', 'CantonController::index/$1');
+    $routes->get('listar', 'CantonController::listar');
     $routes->get('create', 'CantonController::create');
     $routes->post('store', 'CantonController::store');
     $routes->get('edit/(:num)', 'CantonController::edit/$1');
@@ -56,6 +60,8 @@ $routes->group('canton', static function ($routes) {
 // Módulo Parroquia
 $routes->group('parroquia', static function ($routes) {
     $routes->get('', 'ParroquiaController::index');
+    $routes->get('ver/(:num)', 'ParroquiaController::index/$1');
+    $routes->get('listar', 'ParroquiaController::listar');
     $routes->get('create', 'ParroquiaController::create');
     $routes->post('store', 'ParroquiaController::store');
     $routes->get('edit/(:num)', 'ParroquiaController::edit/$1');
@@ -73,9 +79,35 @@ $routes->group('zona', static function ($routes) {
     $routes->get('delete/(:num)', 'ZonaController::delete/$1');
 });
 
+// Módulo Distrito
+$routes->group('distrito', static function ($routes) {
+    $routes->get('', 'DistritoController::index');
+    $routes->get('ver/(:num)', 'DistritoController::index/$1');
+    $routes->get('listar', 'DistritoController::listar');
+    $routes->get('create', 'DistritoController::create');
+    $routes->post('store', 'DistritoController::store');
+    $routes->get('edit/(:num)', 'DistritoController::edit/$1');
+    $routes->post('update/(:num)', 'DistritoController::update/$1');
+    $routes->get('delete/(:num)', 'DistritoController::delete/$1');
+});
+
+// Módulo Tipo de Parroquia
+$routes->group('tipoparroquia', static function ($routes) {
+    $routes->get('', 'TipoparroquiaController::index');
+    $routes->get('create', 'TipoparroquiaController::create');
+    $routes->post('store', 'TipoparroquiaController::store');
+    $routes->get('edit/(:num)', 'TipoparroquiaController::edit/$1');
+    $routes->post('update/(:num)', 'TipoparroquiaController::update/$1');
+    $routes->get('delete/(:num)', 'TipoparroquiaController::delete/$1');
+});
+
+
+
 // Módulo Recinto Electoral
 $routes->group('recintoelectoral', static function ($routes) {
     $routes->get('', 'RecintoelectoralController::index');
+    $routes->get('ver/(:num)', 'RecintoelectoralController::index/$1');
+    $routes->get('listar', 'RecintoelectoralController::listar');
     $routes->get('create', 'RecintoelectoralController::create');
     $routes->post('store', 'RecintoelectoralController::store');
     $routes->get('edit/(:num)', 'RecintoelectoralController::edit/$1');
@@ -96,6 +128,18 @@ $routes->group('meza', static function ($routes) {
     $routes->post('subirActa/(:num)', 'MezaController::subirActa/$1');
     $routes->match(['get', 'head'], 'acta/(:num)', 'MezaController::acta/$1');
     $routes->get('eliminarActa/(:num)', 'MezaController::eliminarActa/$1');
+});
+
+// Módulo Acta Electoral
+$routes->group('acta', static function ($routes) {
+    $routes->get('', 'ActaController::index');
+    $routes->get('ver/(:num)', 'ActaController::index/$1');
+    $routes->get('listar', 'ActaController::listar');
+    $routes->get('create', 'ActaController::create');
+    $routes->post('store', 'ActaController::store');
+    $routes->get('edit/(:num)', 'ActaController::edit/$1');
+    $routes->post('update/(:num)', 'ActaController::update/$1');
+    $routes->get('delete/(:num)', 'ActaController::delete/$1');
 });
 
 // Módulo Tipo de Dignidad

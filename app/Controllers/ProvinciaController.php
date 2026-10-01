@@ -14,22 +14,72 @@ class ProvinciaController extends BaseController
     }
 
     /**
-     * Listar todas las provincias
+     * Navegador por registro de provincias (un registro a la vez con menú de navegación y cantones asociados)
      */
-    public function index()
+    public function index($id = null)
     {
-        $provincias = $this->provinciaModel->orderBy('nombre', 'ASC')->findAll();
+        $provinciaIds = $this->provinciaModel->getProvinciaIdsOrdered();
+        $total        = count($provinciaIds);
 
-        foreach ($provincias as &$item) {
-            $item['total_cantones'] = $this->provinciaModel->countCantonesAsociados($item['idprovincia']);
+        if ($id === null) {
+            $queryId = $this->request->getGet('id');
+            if ($queryId !== null && is_numeric($queryId)) {
+                $id = (int)$queryId;
+            }
         }
 
+        $currentIndex     = 0;
+        $currentProvincia = null;
+        $cantonesAsociados = [];
+
+        if ($total > 0) {
+            if ($id !== null) {
+                $pos = array_search((int)$id, $provinciaIds);
+                $currentIndex = ($pos !== false) ? $pos : 0;
+            } elseif ($this->request->getGet('pos') !== null && is_numeric($this->request->getGet('pos'))) {
+                $posQuery = (int)$this->request->getGet('pos') - 1;
+                $currentIndex = ($posQuery >= 0 && $posQuery < $total) ? $posQuery : 0;
+            }
+
+            $currentId        = $provinciaIds[$currentIndex];
+            $currentProvincia = $this->provinciaModel->find($currentId);
+            $cantonesAsociados = $this->provinciaModel->getCantonesDeProvincia($currentId);
+        }
+
+        $firstId = $total > 0 ? $provinciaIds[0] : null;
+        $prevId  = ($total > 0 && $currentIndex > 0) ? $provinciaIds[$currentIndex - 1] : null;
+        $nextId  = ($total > 0 && $currentIndex < $total - 1) ? $provinciaIds[$currentIndex + 1] : null;
+        $lastId  = $total > 0 ? $provinciaIds[$total - 1] : null;
+
         $data = [
-            'title'      => 'Gestión de Provincias - Control Electoral',
-            'provincias' => $provincias,
+            'title'             => $currentProvincia ? 'Provincia: ' . $currentProvincia['nombre'] . ' - Control Electoral' : 'Provincias - Control Electoral',
+            'currentProvincia'  => $currentProvincia,
+            'cantonesAsociados' => $cantonesAsociados,
+            'currentIndex'      => $currentIndex,
+            'total'             => $total,
+            'firstId'           => $firstId,
+            'prevId'            => $prevId,
+            'nextId'            => $nextId,
+            'lastId'            => $lastId,
+            'allIds'            => $provinciaIds,
         ];
 
         return view('provincia/index', $data);
+    }
+
+    /**
+     * Listado general de todas las provincias en formato tabla
+     */
+    public function listar()
+    {
+        $provincias = $this->provinciaModel->getProvinciasWithCounts();
+
+        $data = [
+            'title'      => 'Listado General de Provincias - Control Electoral',
+            'provincias' => $provincias,
+        ];
+
+        return view('provincia/listar', $data);
     }
 
     /**
@@ -55,14 +105,16 @@ class ProvinciaController extends BaseController
             'nombre' => trim((string)$this->request->getPost('nombre')),
         ];
 
-        if (! $this->provinciaModel->insert($postData)) {
+        $insertId = $this->provinciaModel->insert($postData);
+
+        if (! $insertId) {
             return redirect()->back()
                              ->withInput()
                              ->with('errors', $this->provinciaModel->errors())
                              ->with('old', $postData);
         }
 
-        return redirect()->to(site_url('provincia'))->with('success', 'Provincia registrada con éxito.');
+        return redirect()->to(site_url('provincia/ver/' . $insertId))->with('success', 'Provincia registrada con éxito.');
     }
 
     /**
@@ -107,7 +159,7 @@ class ProvinciaController extends BaseController
                              ->with('errors', $this->provinciaModel->errors());
         }
 
-        return redirect()->to(site_url('provincia'))->with('success', 'Provincia actualizada correctamente.');
+        return redirect()->to(site_url('provincia/ver/' . $id))->with('success', 'Provincia actualizada correctamente.');
     }
 
     /**
@@ -124,9 +176,9 @@ class ProvinciaController extends BaseController
         // Validar si tiene cantones asociados por clave foránea
         $totalCantones = $this->provinciaModel->countCantonesAsociados($id);
         if ($totalCantones > 0) {
-            return redirect()->to(site_url('provincia'))->with(
+            return redirect()->to(site_url('provincia/ver/' . $id))->with(
                 'error',
-                "No se puede eliminar la provincia \"{$provincia['nombre']}\" porque tiene {$totalCantones} cantón(es) asociado(s)."
+                "No se puede eliminar la provincia \"{$provincia['nombre']}\" porque tiene {$totalCantones} cantón(es) asociado(s). Debe reasignar o eliminar los cantones primero."
             );
         }
 

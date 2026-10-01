@@ -56,11 +56,53 @@ class CantonModel extends Model
     }
 
     /**
+     * Obtener IDs ordenados de todos los cantones para navegación
+     */
+    public function getCantonIdsOrdered(): array
+    {
+        $rows = $this->select('canton.idcanton')
+                     ->join('provincia', 'provincia.idprovincia = canton.idprovincia', 'left')
+                     ->orderBy('provincia.nombre', 'ASC')
+                     ->orderBy('canton.nombre', 'ASC')
+                     ->findAll();
+
+        return array_column($rows, 'idcanton');
+    }
+
+    /**
+     * Obtener cantones con el conteo de parroquias asociadas
+     */
+    public function getCantonesWithCounts(): array
+    {
+        $cantones = $this->getCantonesWithProvincia();
+
+        foreach ($cantones as &$c) {
+            $c['total_parroquias'] = $this->countParroquiasAsociadas($c['idcanton']);
+        }
+
+        return $cantones;
+    }
+
+    /**
+     * Obtener parroquias pertenecientes a un cantón específico
+     */
+    public function getParroquiasDeCanton(int $idcanton): array
+    {
+        return $this->db->table('parroquia')
+                        ->select('parroquia.*, tipoparroquia.nombre AS tipoparroquia_nombre, distrito.nombre AS distrito_nombre')
+                        ->join('tipoparroquia', 'tipoparroquia.idtipoparroquia = parroquia.idtipoparroquia', 'left')
+                        ->join('distrito', 'distrito.iddistrito = parroquia.iddistrito', 'left')
+                        ->where('parroquia.idcanton', $idcanton)
+                        ->orderBy('parroquia.nombre', 'ASC')
+                        ->get()
+                        ->getResultArray();
+    }
+
+    /**
      * Contar cuántas parroquias están asociadas a este cantón
      */
-    public function countParroquiasAsociadas($idcanton)
+    public function countParroquiasAsociadas($idcanton): int
     {
-        $db = \Config\Database::connect();
-        return $db->table('parroquia')->where('idcanton', $idcanton)->countAllResults();
+        return $this->db->table('parroquia')->where('idcanton', $idcanton)->countAllResults();
     }
 }
