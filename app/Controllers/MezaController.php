@@ -37,7 +37,7 @@ class MezaController extends BaseController
 
         $currentIndex = 0;
         $currentMeza  = null;
-        $papeletas    = [];
+        $actas        = [];
 
         if ($total > 0) {
             if ($id !== null) {
@@ -50,7 +50,7 @@ class MezaController extends BaseController
 
             $currentId   = $mezaIds[$currentIndex];
             $currentMeza = $this->mezaModel->getMezasDetailed($currentId);
-            $papeletas   = $this->mezaModel->getPapeletasDeMeza($currentId);
+            $actas       = $this->mezaModel->getActasDeMeza($currentId);
         }
 
         $firstId = $total > 0 ? $mezaIds[0] : null;
@@ -61,7 +61,7 @@ class MezaController extends BaseController
         $data = [
             'title'        => $currentMeza ? 'Mesa Electoral #' . $currentMeza['numero'] . ' - Control Electoral' : 'Mesas Electorales - Control Electoral',
             'currentMeza'  => $currentMeza,
-            'papeletas'    => $papeletas,
+            'actas'        => $actas,
             'currentIndex' => $currentIndex,
             'total'        => $total,
             'firstId'      => $firstId,
@@ -79,13 +79,13 @@ class MezaController extends BaseController
      */
     public function listar()
     {
-        $mezas             = $this->mezaModel->getMezasDetailed();
-        $dignidadesPorMeza = $this->mezaModel->getDignidadesPorTodasLasMesas();
+        $mezas        = $this->mezaModel->getMezasDetailed();
+        $actasPorMeza = $this->mezaModel->getActasPorTodasLasMesas();
 
         $data = [
-            'title'             => 'Listado General de Mesas Electorales - Control Electoral',
-            'mezas'             => $mezas,
-            'dignidadesPorMeza' => $dignidadesPorMeza,
+            'title'        => 'Listado General de Mesas Electorales - Control Electoral',
+            'mezas'        => $mezas,
+            'actasPorMeza' => $actasPorMeza,
         ];
 
         return view('meza/listar', $data);
@@ -196,128 +196,16 @@ class MezaController extends BaseController
             return redirect()->to(site_url('meza'))->with('error', 'La mesa electoral no existe.');
         }
 
-        $totalPapeletas = $this->mezaModel->countMezaDignidadesAsociadas((int)$id);
-        if ($totalPapeletas > 0) {
+        $totalActas = $this->mezaModel->countActasAsociadas((int)$id);
+        if ($totalActas > 0) {
             return redirect()->to(site_url('meza/ver/' . $id))->with(
                 'error',
-                "No se puede eliminar la Mesa #{$meza['numero']} porque tiene {$totalPapeletas} dignidad(es)/papeleta(s) asignada(s). Debe reasignar o eliminar las papeletas primero."
+                "No se puede eliminar la Mesa #{$meza['numero']} porque tiene {$totalActas} acta(s) de escrutinio registrada(s). Debe eliminar las actas asociadas primero."
             );
         }
 
         $this->mezaModel->delete($id);
 
         return redirect()->to(site_url('meza'))->with('success', 'Mesa electoral eliminada exitosamente.');
-    }
-
-    /**
-     * Cargar y guardar la imagen del acta de escrutinio en repositorio/actaescrutinio/{idmeza}.jpg
-     */
-    public function subirActa($id = null)
-    {
-        $meza = $this->mezaModel->find($id);
-
-        if (! $meza) {
-            return redirect()->to(site_url('meza'))->with('error', 'La mesa electoral no existe.');
-        }
-
-        $file = $this->request->getFile('acta') ?? $this->request->getFile('foto');
-
-        if (! $file || ! $file->isValid()) {
-            return redirect()->to(site_url('meza/ver/' . $id))->with('error', 'Debe seleccionar un archivo de imagen válido para el acta de escrutinio.');
-        }
-
-        $mimeType = $file->getMimeType();
-        $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
-        if (! in_array($mimeType, $allowedMimes)) {
-            return redirect()->to(site_url('meza/ver/' . $id))->with('error', 'Formato no permitido. Solo se aceptan imágenes JPG, PNG o WEBP.');
-        }
-
-        $directorio = ROOTPATH . 'repositorio/actaescrutinio/';
-        if (! is_dir($directorio)) {
-            mkdir($directorio, 0777, true);
-        }
-
-        $nombreArchivo = $meza['idmeza'] . '.jpg';
-        $rutaDestino   = $directorio . $nombreArchivo;
-
-        try {
-            // Si la imagen es PNG o WEBP, convertirla a JPEG para garantizar formato .jpg homogéneo
-            if ($mimeType === 'image/png') {
-                $src = imagecreatefrompng($file->getTempName());
-                if ($src !== false) {
-                    $width  = imagesx($src);
-                    $height = imagesy($src);
-                    $dest   = imagecreatetruecolor($width, $height);
-                    $white  = imagecolorallocate($dest, 255, 255, 255);
-                    imagefill($dest, 0, 0, $white);
-                    imagecopy($dest, $src, 0, 0, 0, 0, $width, $height);
-                    imagejpeg($dest, $rutaDestino, 90);
-                    imagedestroy($src);
-                    imagedestroy($dest);
-                } else {
-                    $file->move($directorio, $nombreArchivo, true);
-                }
-            } elseif ($mimeType === 'image/webp' && function_exists('imagecreatefromwebp')) {
-                $src = imagecreatefromwebp($file->getTempName());
-                if ($src !== false) {
-                    imagejpeg($src, $rutaDestino, 90);
-                    imagedestroy($src);
-                } else {
-                    $file->move($directorio, $nombreArchivo, true);
-                }
-            } else {
-                // Si ya es JPEG / JPG
-                $file->move($directorio, $nombreArchivo, true);
-            }
-
-            return redirect()->to(site_url('meza/ver/' . $id))->with('success', "Acta de escrutinio guardada exitosamente como {$nombreArchivo} en repositorio/actaescrutinio.");
-        } catch (\Exception $e) {
-            return redirect()->to(site_url('meza/ver/' . $id))->with('error', 'Error al procesar el acta de escrutinio: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Servir la foto del acta de escrutinio desde repositorio/actaescrutinio/{idmeza}.jpg
-     */
-    public function acta($id = null)
-    {
-        $meza = $this->mezaModel->find($id);
-
-        if (! $meza) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        $rutaActa = ROOTPATH . 'repositorio/actaescrutinio/' . $meza['idmeza'] . '.jpg';
-
-        if (! file_exists($rutaActa)) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Acta no encontrada');
-        }
-
-        return $this->response
-                    ->setHeader('Content-Type', 'image/jpeg')
-                    ->setHeader('Cache-Control', 'no-cache, must-revalidate')
-                    ->setBody(file_get_contents($rutaActa));
-    }
-
-    /**
-     * Eliminar el acta de escrutinio de la mesa
-     */
-    public function eliminarActa($id = null)
-    {
-        $meza = $this->mezaModel->find($id);
-
-        if (! $meza) {
-            return redirect()->to(site_url('meza'))->with('error', 'La mesa electoral no existe.');
-        }
-
-        $rutaActa = ROOTPATH . 'repositorio/actaescrutinio/' . $meza['idmeza'] . '.jpg';
-
-        if (file_exists($rutaActa)) {
-            unlink($rutaActa);
-            return redirect()->to(site_url('meza/ver/' . $id))->with('success', 'Acta de escrutinio eliminada correctamente del repositorio.');
-        }
-
-        return redirect()->to(site_url('meza/ver/' . $id))->with('error', 'No existe acta de escrutinio para eliminar en esta mesa.');
     }
 }

@@ -95,4 +95,51 @@ class ActaModel extends Model
     {
         return $this->getActaDetailed(null);
     }
+
+    /**
+     * Obtener los votos por dignidad/candidato asignados a un acta específica
+     */
+    public function getDignidadactasDeActa(int $idacta): array
+    {
+        return $this->db->table('dignidadacta')
+                        ->select('dignidadacta.iddignidadacta, 
+                                  dignidadacta.idacta, 
+                                  dignidadacta.iddignidad, 
+                                  dignidadacta.votacion,
+                                  dignidad.idpersona,
+                                  persona.idpersona AS persona_id,
+                                  persona.nombre AS persona_nombre,
+                                  persona.apellidos AS persona_apellidos,
+                                  persona.cedula AS persona_cedula,
+                                  sexo.nombre AS persona_sexo,
+                                  tipodignidad.nombre AS tipodignidad_nombre')
+                        ->join('dignidad', 'dignidad.iddignidad = dignidadacta.iddignidad', 'left')
+                        ->join('tipodignidad', 'tipodignidad.idtipodignidad = dignidad.idtipodignidad', 'left')
+                        ->join('persona', 'persona.idpersona = dignidad.idpersona', 'left')
+                        ->join('sexo', 'sexo.idsexo = persona.idsexo', 'left')
+                        ->where('dignidadacta.idacta', $idacta)
+                        ->orderBy('tipodignidad.nombre', 'ASC')
+                        ->orderBy('persona.apellidos', 'ASC')
+                        ->get()
+                        ->getResultArray();
+    }
+
+    /**
+     * Obtener el conteo y suma de votos de dignidades por cada acta
+     */
+    public function getEstadisticasDignidadesPorTodasLasActas(): array
+    {
+        $rows = $this->db->table('dignidadacta')
+                         ->select('idacta, COUNT(iddignidadacta) AS total_dignidades, SUM(votacion) AS total_votos_candidatos')
+                         ->groupBy('idacta')
+                         ->get()
+                         ->getResultArray();
+
+        $res = [];
+        foreach ($rows as $r) {
+            $res[$r['idacta']] = $r;
+        }
+
+        return $res;
+    }
 }

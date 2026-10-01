@@ -43,7 +43,7 @@
                         <th>Recinto Electoral</th>
                         <th>Zona / Parroquia</th>
                         <th>Cantón / Provincia</th>
-                        <th>Dignidades a Elegir</th>
+                        <th>Actas de Escrutinio</th>
                         <th class="text-center" style="width: 190px;">Acciones</th>
                     </tr>
                 </thead>
@@ -64,32 +64,11 @@
                             <tr>
                                 <td class="text-center fw-semibold text-secondary">#<?= esc($m['idmeza']) ?></td>
                                 <td>
-                                    <?php 
-                                        $rutaActaM = ROOTPATH . 'repositorio/actaescrutinio/' . $m['idmeza'] . '.jpg';
-                                        $tieneActaM = file_exists($rutaActaM);
-                                    ?>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="bg-primary text-white rounded-circle p-2 d-inline-flex justify-content-center align-items-center fw-bold" style="width: 34px; height: 34px; font-size: 0.85rem;">
                                             <?= esc($m['numero']) ?>
                                         </div>
-                                        <div>
-                                            <span class="fw-bold text-dark fs-6 d-block">Mesa <?= esc($m['numero']) ?></span>
-                                            <div>
-                                                <?php if ($tieneActaM): ?>
-                                                    <a href="<?= site_url('meza/acta/' . $m['idmeza']) ?>" 
-                                                       target="_blank" 
-                                                       class="badge bg-success-subtle text-success border border-success-subtle px-1 py-0.5 text-decoration-none" 
-                                                       title="Ver Acta Oficial de Escrutinio" 
-                                                       style="font-size: 0.72rem;">
-                                                        <i class="bi bi-file-earmark-check-fill me-1"></i>Con Acta
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span class="badge bg-light text-muted border px-1 py-0.5" title="Sin acta digitalizada" style="font-size: 0.72rem;">
-                                                        <i class="bi bi-file-earmark-x me-1"></i>Sin Acta
-                                                    </span>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
+                                        <span class="fw-bold text-dark fs-6">Mesa <?= esc($m['numero']) ?></span>
                                     </div>
                                 </td>
                                 <td>
@@ -126,32 +105,16 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <?php $dignidadesMesa = $dignidadesPorMeza[$m['idmeza']] ?? []; ?>
-                                    <?php if (empty($dignidadesMesa)): ?>
-                                        <span class="text-muted small fst-italic">Sin asignar</span>
+                                    <?php $actasMesa = $actasPorMeza[$m['idmeza']] ?? []; ?>
+                                    <?php if (empty($actasMesa)): ?>
+                                        <span class="text-muted small fst-italic">Sin actas</span>
                                     <?php else: ?>
                                         <div class="d-flex align-items-center gap-1 flex-wrap">
-                                            <?php foreach ($dignidadesMesa as $dm): ?>
-                                                <?php 
-                                                    $ced = $dm['persona_cedula'] ?? '';
-                                                    $rf = ROOTPATH . 'repositorio/fotos/' . $ced . '.jpg';
-                                                    $tf = !empty($ced) && file_exists($rf);
-                                                    $infoDignidad = esc($dm['persona_nombre'] . ' ' . $dm['persona_apellidos'] . ' (' . $dm['tipodignidad_nombre'] . ') - ' . $dm['numeropapeleta'] . ' papeletas');
-                                                ?>
-                                                <a href="<?= site_url('dignidad?id=' . $dm['iddignidad']) ?>" 
-                                                   class="d-inline-block text-decoration-none" 
-                                                   title="<?= $infoDignidad ?>">
-                                                    <?php if ($tf): ?>
-                                                        <img src="<?= site_url('persona/foto/' . $dm['idpersona']) ?>?v=<?= filemtime($rf) ?>" 
-                                                             alt="<?= esc($dm['persona_nombre']) ?>" 
-                                                             class="rounded-circle border border-2 border-white shadow-sm" 
-                                                             style="width: 32px; height: 32px; object-fit: cover;">
-                                                    <?php else: ?>
-                                                        <span class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center fw-bold shadow-sm" 
-                                                              style="width: 32px; height: 32px; font-size: 0.72rem;">
-                                                            <?= esc(mb_substr($dm['persona_nombre'] ?? '', 0, 1) . mb_substr($dm['persona_apellidos'] ?? '', 0, 1)) ?>
-                                                        </span>
-                                                    <?php endif; ?>
+                                            <?php foreach ($actasMesa as $acta): ?>
+                                                <a href="<?= site_url('acta/ver/' . $acta['idacta']) ?>" 
+                                                   class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-decoration-none" 
+                                                   title="Acta #<?= $acta['idacta'] ?> (Papeletas: <?= $acta['totalpapeleta'] ?>, Blancos: <?= $acta['totalblancos'] ?>, Nulos: <?= $acta['totalnulos'] ?>)">
+                                                    <i class="bi bi-file-earmark-text me-1"></i>Acta #<?= $acta['idacta'] ?>
                                                 </a>
                                             <?php endforeach; ?>
                                         </div>

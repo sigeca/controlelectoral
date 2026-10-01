@@ -260,27 +260,27 @@
             </div>
         </div>
 
-        <!-- Tarjeta Secundaria: Mesas donde se Elige esta Dignidad -->
+        <!-- Tarjeta Secundaria: Votación Registrada en Actas de Escrutinio -->
         <div class="col-lg-5 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
                     <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                        <i class="bi bi-ui-checks text-primary"></i>
-                        <span>Mesas donde se Elige esta Dignidad</span>
+                        <i class="bi bi-file-earmark-check-fill text-primary"></i>
+                        <span>Votación en Actas de Escrutinio</span>
                     </div>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
-                        <?= count($mesasAsignadas) ?> mesa(s)
+                        <?= count($votacionesActas) ?> acta(s)
                     </span>
                 </div>
 
                 <div class="card-body p-3">
-                    <?php if (empty($mesasAsignadas)): ?>
+                    <?php if (empty($votacionesActas)): ?>
                         <div class="text-center py-4 text-muted">
                             <i class="bi bi-inbox fs-1 text-secondary opacity-50 mb-2 d-block"></i>
-                            <p class="mb-2 fw-semibold">Esta dignidad aún no está configurada en mesas electorales.</p>
-                            <p class="small text-muted mb-3">Asigne esta dignidad a juntas receptoras del voto y registre las papeletas contadas.</p>
-                            <a href="<?= site_url('mezadignidad/create') ?>" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus-circle me-1"></i> Asignar a una Mesa
+                            <p class="mb-2 fw-semibold">Esta candidatura aún no registra votos en actas de escrutinio.</p>
+                            <p class="small text-muted mb-3">Abra una acta de escrutinio e ingrese la votación alcanzada por este candidato.</p>
+                            <a href="<?= site_url('acta') ?>" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-text me-1"></i> Ir a Actas de Escrutinio
                             </a>
                         </div>
                     <?php else: ?>
@@ -288,30 +288,32 @@
                             <table class="table table-sm table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 130px;" class="text-center">Papeletas Contadas</th>
-                                        <th>Mesa / Recinto</th>
-                                        <th class="text-end" style="width: 50px;"></th>
+                                        <th style="width: 120px;" class="text-center">Votación</th>
+                                        <th>Acta / Mesa</th>
+                                        <th class="text-end" style="width: 70px;">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($mesasAsignadas as $m): ?>
+                                    <?php foreach ($votacionesActas as $v): ?>
                                         <tr>
                                             <td class="text-center">
-                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 font-monospace fw-semibold">
-                                                    <i class="bi bi-file-earmark-check me-1"></i><?= number_format((int)$m['numeropapeleta']) ?>
+                                                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-2 py-1 font-monospace fs-6 fw-bold">
+                                                    <i class="bi bi-check-circle me-1"></i><?= number_format((int)$v['votacion']) ?>
                                                 </span>
                                             </td>
                                             <td>
                                                 <div class="fw-semibold text-dark small">
-                                                    Mesa <?= esc($m['meza_numero']) ?> (<?= esc($m['sexo_nombre']) ?>)
+                                                    <a href="<?= site_url('acta/ver/' . $v['idacta']) ?>" class="text-decoration-none">
+                                                        Acta #<?= esc($v['idacta']) ?>
+                                                    </a> - Mesa <?= esc($v['meza_numero'] ?? 'N/A') ?> (<?= esc($v['sexo_nombre'] ?? '') ?>)
                                                 </div>
                                                 <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    <i class="bi bi-building me-1"></i><?= esc($m['recinto_nombre'] ?? 'Sin Recinto') ?>
+                                                    <i class="bi bi-building me-1"></i><?= esc($v['recinto_nombre'] ?? 'Sin Recinto') ?>
                                                 </div>
                                             </td>
                                             <td class="text-end">
-                                                <a href="<?= site_url('mezadignidad/edit/' . $m['idmezadignidad']) ?>" class="btn btn-sm btn-outline-secondary p-1" title="Editar dignidad en mesa">
-                                                    <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+                                                <a href="<?= site_url('acta/ver/' . $v['idacta']) ?>" class="btn btn-sm btn-outline-primary p-1 px-2" title="Ver Acta de Escrutinio">
+                                                    <i class="bi bi-eye" style="font-size: 0.8rem;"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -323,11 +325,11 @@
                 </div>
 
                 <div class="card-footer bg-white border-top py-2 d-flex justify-content-between align-items-center">
-                    <a href="<?= site_url('mezadignidad') ?>" class="btn btn-sm btn-link text-decoration-none px-0">
-                        <i class="bi bi-box-arrow-up-right me-1"></i> Dignidades por Mesa
+                    <a href="<?= site_url('dignidadacta') ?>" class="btn btn-sm btn-link text-decoration-none px-0">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Votaciones por Dignidad
                     </a>
-                    <a href="<?= site_url('mezadignidad/create') ?>" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-plus-circle me-1"></i> Asignar a Mesa
+                    <a href="<?= site_url('acta') ?>" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-file-earmark-text me-1"></i> Ver Actas
                     </a>
                 </div>
             </div>

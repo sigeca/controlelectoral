@@ -345,9 +345,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= site_url('mezadignidad') ?>" class="nav-link <?= url_is('mezadignidad*') ? 'active' : '' ?>">
-                            <i class="bi bi-ui-checks"></i>
-                            <span>Dignidades por Mesa</span>
+                        <a href="<?= site_url('dignidadacta') ?>" class="nav-link <?= url_is('dignidadacta*') ? 'active' : '' ?>">
+                            <i class="bi bi-box-seam-fill"></i>
+                            <span>Votos por Dignidad (Acta)</span>
                         </a>
                     </li>
                 </ul>
@@ -374,7 +374,7 @@
                         <div class="px-3 py-2 text-muted small">
                             <div class="text-light fw-semibold mb-1"><i class="bi bi-database-check text-success me-1"></i> MySQL Local</div>
                             <div>BD: <code class="text-info bg-dark px-1 rounded">dbcontrolelectoral</code></div>
-                            <div class="mt-1">Tablas: <code>persona</code>, <code>sexo</code>, <code>provincia</code>, <code>canton</code>, <code>parroquia</code>, <code>zona</code>, <code>recintoelectoral</code>, <code>meza</code>, <code>tipodignidad</code>, <code>dignidad</code>, <code>mezadignidad</code>, <code>usuario</code>, <code>rolusuario</code></div>
+                            <div class="mt-1">Tablas: <code>persona</code>, <code>sexo</code>, <code>provincia</code>, <code>canton</code>, <code>parroquia</code>, <code>zona</code>, <code>recintoelectoral</code>, <code>meza</code>, <code>acta</code>, <code>tipodignidad</code>, <code>dignidad</code>, <code>dignidadacta</code>, <code>usuario</code>, <code>rolusuario</code></div>
                         </div>
                     </li>
                 </ul>

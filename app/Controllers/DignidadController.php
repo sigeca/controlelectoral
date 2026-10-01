@@ -37,7 +37,7 @@ class DignidadController extends BaseController
 
         $currentIndex    = 0;
         $currentDignidad = null;
-        $mesasAsignadas  = [];
+        $votacionesActas = [];
 
         if ($total > 0) {
             if ($id !== null) {
@@ -50,7 +50,7 @@ class DignidadController extends BaseController
 
             $currentId       = $dignidadIds[$currentIndex];
             $currentDignidad = $this->dignidadModel->getDignidadesDetailed($currentId);
-            $mesasAsignadas  = $this->dignidadModel->getMesasDeDignidad($currentId);
+            $votacionesActas = $this->dignidadModel->getVotacionesEnActasDeDignidad($currentId);
         }
 
         $firstId = $total > 0 ? $dignidadIds[0] : null;
@@ -61,7 +61,7 @@ class DignidadController extends BaseController
         $data = [
             'title'           => $currentDignidad ? 'Candidatura: ' . $currentDignidad['persona_nombre'] . ' ' . $currentDignidad['persona_apellidos'] . ' (' . $currentDignidad['tipodignidad_nombre'] . ') - Control Electoral' : 'Dignidades Electorales - Control Electoral',
             'currentDignidad' => $currentDignidad,
-            'mesasAsignadas'  => $mesasAsignadas,
+            'votacionesActas' => $votacionesActas,
             'currentIndex'    => $currentIndex,
             'total'           => $total,
             'firstId'         => $firstId,
@@ -190,14 +190,6 @@ class DignidadController extends BaseController
 
         if (! $dignidad) {
             return redirect()->to(site_url('dignidad'))->with('error', 'El registro de dignidad no existe.');
-        }
-
-        $totalPapeletas = $this->dignidadModel->countMezaDignidadesAsociadas((int)$id);
-        if ($totalPapeletas > 0) {
-            return redirect()->to(site_url('dignidad/ver/' . $id))->with(
-                'error',
-                "No se puede eliminar la candidatura de dignidad #{$dignidad['iddignidad']} porque está asignada a {$totalPapeletas} mesa(s) o papeleta(s) electoral(es). Debe desvincularla de las mesas primero."
-            );
         }
 
         $this->dignidadModel->delete($id);

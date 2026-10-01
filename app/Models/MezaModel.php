@@ -71,16 +71,6 @@ class MezaModel extends Model
     }
 
     /**
-     * Contar cuántas asignaciones de papeleta/dignidad están vinculadas a esta mesa
-     */
-    public function countMezaDignidadesAsociadas(int $idmeza): int
-    {
-        return $this->db->table('mezadignidad')
-                        ->where('idmeza', $idmeza)
-                        ->countAllResults();
-    }
-
-    /**
      * Obtener el listado ordenado de IDs de mesas electorales
      */
     public function getMezaIdsOrdered(): array
@@ -90,51 +80,25 @@ class MezaModel extends Model
     }
 
     /**
-     * Obtener las dignidades a elegir en una mesa específica junto a la cantidad de papeletas contadas
-     * e información de la persona postulada (incluyendo ID de persona para la foto)
+     * Obtener las actas de escrutinio registradas para una mesa específica
      */
-    public function getPapeletasDeMeza(int $idmeza): array
+    public function getActasDeMeza(int $idmeza): array
     {
-        return $this->db->table('mezadignidad')
-                        ->select('mezadignidad.idmezadignidad, 
-                                  mezadignidad.numeropapeleta, 
-                                  mezadignidad.idmeza,
-                                  dignidad.iddignidad, 
-                                  tipodignidad.nombre AS tipodignidad_nombre, 
-                                  persona.idpersona, 
-                                  persona.nombre AS persona_nombre, 
-                                  persona.apellidos AS persona_apellidos, 
-                                  persona.cedula AS persona_cedula,
-                                  sexo.nombre AS persona_sexo')
-                        ->join('dignidad', 'dignidad.iddignidad = mezadignidad.iddignidad', 'left')
-                        ->join('tipodignidad', 'tipodignidad.idtipodignidad = dignidad.idtipodignidad', 'left')
-                        ->join('persona', 'persona.idpersona = dignidad.idpersona', 'left')
-                        ->join('sexo', 'sexo.idsexo = persona.idsexo', 'left')
-                        ->where('mezadignidad.idmeza', $idmeza)
-                        ->orderBy('mezadignidad.numeropapeleta', 'ASC')
+        return $this->db->table('acta')
+                        ->where('idmeza', $idmeza)
+                        ->orderBy('idacta', 'ASC')
                         ->get()
                         ->getResultArray();
     }
 
     /**
-     * Obtener todas las dignidades asignadas a cada mesa agrupadas por idmeza (para listado general)
+     * Obtener las actas agrupadas por mesa (para listado general)
      */
-    public function getDignidadesPorTodasLasMesas(): array
+    public function getActasPorTodasLasMesas(): array
     {
-        $rows = $this->db->table('mezadignidad')
-                         ->select('mezadignidad.idmeza, 
-                                   mezadignidad.idmezadignidad, 
-                                   mezadignidad.numeropapeleta, 
-                                   dignidad.iddignidad, 
-                                   tipodignidad.nombre AS tipodignidad_nombre, 
-                                   persona.idpersona, 
-                                   persona.nombre AS persona_nombre, 
-                                   persona.apellidos AS persona_apellidos, 
-                                   persona.cedula AS persona_cedula')
-                         ->join('dignidad', 'dignidad.iddignidad = mezadignidad.iddignidad', 'left')
-                         ->join('tipodignidad', 'tipodignidad.idtipodignidad = dignidad.idtipodignidad', 'left')
-                         ->join('persona', 'persona.idpersona = dignidad.idpersona', 'left')
-                         ->orderBy('mezadignidad.numeropapeleta', 'ASC')
+        $rows = $this->db->table('acta')
+                         ->select('idmeza, idacta, totalpapeleta, totalblancos, totalnulos')
+                         ->orderBy('idacta', 'ASC')
                          ->get()
                          ->getResultArray();
 
@@ -144,6 +108,16 @@ class MezaModel extends Model
         }
 
         return $agrupados;
+    }
+
+    /**
+     * Contar la cantidad de actas asociadas a una mesa
+     */
+    public function countActasAsociadas(int $idmeza): int
+    {
+        return $this->db->table('acta')
+                        ->where('idmeza', $idmeza)
+                        ->countAllResults();
     }
 }
 

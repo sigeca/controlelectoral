@@ -58,16 +58,6 @@ class DignidadModel extends Model
     }
 
     /**
-     * Contar cuántas asignaciones a mesas/papeletas tiene esta candidatura/dignidad
-     */
-    public function countMezaDignidadesAsociadas(int $iddignidad): int
-    {
-        return $this->db->table('mezadignidad')
-                        ->where('iddignidad', $iddignidad)
-                        ->countAllResults();
-    }
-
-    /**
      * Obtener el listado ordenado de IDs de dignidades electorales
      */
     public function getDignidadIdsOrdered(): array
@@ -77,17 +67,24 @@ class DignidadModel extends Model
     }
 
     /**
-     * Obtener las mesas electorales donde esta dignidad será elegida y las papeletas contadas
+     * Obtener los registros de votación en actas para esta dignidad
      */
-    public function getMesasDeDignidad(int $iddignidad): array
+    public function getVotacionesEnActasDeDignidad(int $iddignidad): array
     {
-        return $this->db->table('mezadignidad')
-                        ->select('mezadignidad.idmezadignidad, mezadignidad.numeropapeleta, meza.idmeza, meza.numero AS meza_numero, sexo.nombre AS sexo_nombre, recintoelectoral.nombre AS recinto_nombre')
-                        ->join('meza', 'meza.idmeza = mezadignidad.idmeza', 'left')
+        return $this->db->table('dignidadacta')
+                        ->select('dignidadacta.iddignidadacta, 
+                                  dignidadacta.idacta, 
+                                  dignidadacta.votacion, 
+                                  meza.idmeza, 
+                                  meza.numero AS meza_numero, 
+                                  sexo.nombre AS sexo_nombre, 
+                                  recintoelectoral.nombre AS recinto_nombre')
+                        ->join('acta', 'acta.idacta = dignidadacta.idacta', 'left')
+                        ->join('meza', 'meza.idmeza = acta.idmeza', 'left')
                         ->join('sexo', 'sexo.idsexo = meza.idsexo', 'left')
                         ->join('recintoelectoral', 'recintoelectoral.idrecintoelectoral = meza.idrecintoelectoral', 'left')
-                        ->where('mezadignidad.iddignidad', $iddignidad)
-                        ->orderBy('mezadignidad.numeropapeleta', 'ASC')
+                        ->where('dignidadacta.iddignidad', $iddignidad)
+                        ->orderBy('acta.idacta', 'ASC')
                         ->get()
                         ->getResultArray();
     }

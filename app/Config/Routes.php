@@ -125,9 +125,6 @@ $routes->group('meza', static function ($routes) {
     $routes->get('edit/(:num)', 'MezaController::edit/$1');
     $routes->post('update/(:num)', 'MezaController::update/$1');
     $routes->get('delete/(:num)', 'MezaController::delete/$1');
-    $routes->post('subirActa/(:num)', 'MezaController::subirActa/$1');
-    $routes->match(['get', 'head'], 'acta/(:num)', 'MezaController::acta/$1');
-    $routes->get('eliminarActa/(:num)', 'MezaController::eliminarActa/$1');
 });
 
 // Módulo Acta Electoral
@@ -140,6 +137,21 @@ $routes->group('acta', static function ($routes) {
     $routes->get('edit/(:num)', 'ActaController::edit/$1');
     $routes->post('update/(:num)', 'ActaController::update/$1');
     $routes->get('delete/(:num)', 'ActaController::delete/$1');
+    $routes->post('subirFoto/(:num)', 'ActaController::subirFoto/$1');
+    $routes->match(['get', 'head'], 'foto/(:num)', 'ActaController::foto/$1');
+    $routes->get('eliminarFoto/(:num)', 'ActaController::eliminarFoto/$1');
+});
+
+// Módulo Votación por Dignidad en Acta
+$routes->group('dignidadacta', static function ($routes) {
+    $routes->get('', 'DignidadactaController::index');
+    $routes->get('ver/(:num)', 'DignidadactaController::index/$1');
+    $routes->get('listar', 'DignidadactaController::listar');
+    $routes->get('create', 'DignidadactaController::create');
+    $routes->post('store', 'DignidadactaController::store');
+    $routes->get('edit/(:num)', 'DignidadactaController::edit/$1');
+    $routes->post('update/(:num)', 'DignidadactaController::update/$1');
+    $routes->get('delete/(:num)', 'DignidadactaController::delete/$1');
 });
 
 // Módulo Tipo de Dignidad
@@ -164,15 +176,7 @@ $routes->group('dignidad', static function ($routes) {
     $routes->get('delete/(:num)', 'DignidadController::delete/$1');
 });
 
-// Módulo Asignación Mesa - Dignidad (Papeletas)
-$routes->group('mezadignidad', static function ($routes) {
-    $routes->get('', 'MezadignidadController::index');
-    $routes->get('create', 'MezadignidadController::create');
-    $routes->match(['get', 'post'], 'store', 'MezadignidadController::store');
-    $routes->get('edit/(:num)', 'MezadignidadController::edit/$1');
-    $routes->match(['get', 'post'], 'update/(:num)', 'MezadignidadController::update/$1');
-    $routes->get('delete/(:num)', 'MezadignidadController::delete/$1');
-});
+
 
 
 

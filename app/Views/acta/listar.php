@@ -41,13 +41,14 @@
                         <th class="text-center">Blancos</th>
                         <th class="text-center">Nulos</th>
                         <th class="text-center">Válidos</th>
+                        <th class="text-center">Candidatos Registrados</th>
                         <th class="text-center" style="width: 190px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($actas)): ?>
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="9" class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
                                 <div class="fs-5">No existen actas registradas actualmente.</div>
                                 <p class="small text-muted mb-3">Comience registrando una nueva acta electoral en el sistema.</p>
@@ -58,13 +59,31 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($actas as $item): ?>
-                            <?php $validos = $item['totalpapeleta'] - ($item['totalblancos'] + $item['totalnulos']); ?>
+                            <?php 
+                                $validos = $item['totalpapeleta'] - ($item['totalblancos'] + $item['totalnulos']);
+                                $stat    = $estadisticasDignidades[$item['idacta']] ?? ['total_dignidades' => 0, 'total_votos_candidatos' => 0];
+                            ?>
                             <tr>
                                 <td class="text-center fw-semibold text-secondary">#<?= esc($item['idacta']) ?></td>
                                 <td>
+                                    <?php 
+                                        $rf = ROOTPATH . 'repositorio/actaescrutinio/' . $item['idacta'] . '.jpg';
+                                        $tf = file_exists($rf);
+                                    ?>
                                     <a href="<?= site_url('acta/ver/' . $item['idacta']) ?>" class="fw-bold text-dark text-decoration-none hover-primary fs-6">
                                         Mesa #<?= esc($item['meza_numero'] ?? $item['idmeza']) ?> (<?= esc($item['meza_sexo'] ?? 'General') ?>)
                                     </a>
+                                    <div>
+                                        <?php if ($tf): ?>
+                                            <a href="<?= site_url('acta/foto/' . $item['idacta']) ?>" target="_blank" class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5 text-decoration-none" style="font-size: 0.72rem;" title="Ver Foto Física del Acta">
+                                                <i class="bi bi-file-earmark-check-fill me-1"></i>Con Foto
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="badge bg-light text-muted border px-1.5 py-0.5" style="font-size: 0.72rem;" title="Sin foto digitalizada">
+                                                <i class="bi bi-file-earmark-x me-1"></i>Sin Foto
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="fw-semibold text-dark"><?= esc($item['recinto_nombre'] ?? 'Sin recinto') ?></div>
@@ -93,8 +112,13 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
+                                    <a href="<?= site_url('acta/ver/' . $item['idacta']) ?>" class="badge bg-purple-subtle text-purple border px-3 py-1 fs-7 text-decoration-none" style="background-color: #f3e8ff; color: #6b21a8; border-color: #e9d5ff;">
+                                        <i class="bi bi-box-seam me-1"></i><?= $stat['total_dignidades'] ?> candidato(s)
+                                    </a>
+                                </td>
+                                <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="<?= site_url('acta/ver/' . $item['idacta']) ?>" class="btn btn-outline-primary" title="Ver Ficha">
+                                        <a href="<?= site_url('acta/ver/' . $item['idacta']) ?>" class="btn btn-outline-primary" title="Ver Ficha y Gestionar Votos">
                                             <i class="bi bi-eye"></i> Ver
                                         </a>
                                         <a href="<?= site_url('acta/edit/' . $item['idacta']) ?>" class="btn btn-outline-warning" title="Editar">
